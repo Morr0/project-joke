@@ -16,10 +16,17 @@ public class PlayerTriangle {
     private Body body;
 
     public PlayerTriangle(World world, Orientation orientation) {
-        this.pos = new Position(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+        this.pos = new Position(Gdx.graphics.getWidth() / 2, (Gdx.graphics.getHeight() / 2) + 110);
         this.orientation = orientation;
 
         initPhysBody(world);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+
+        body.getWorld().destroyBody(body);
     }
 
     private void initPhysBody(World world){

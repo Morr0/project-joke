@@ -1,5 +1,6 @@
 package com.rami.projectjoke.core;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -12,7 +13,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
 // Represents a two isosceles triangles
-public class TrianglePair implements ContactListener {
+public class TrianglePair {
     public final static boolean COLLISION_FATAL = false;
     public final static boolean COLLISION_SUCCESS = true;
 
@@ -34,6 +35,7 @@ public class TrianglePair implements ContactListener {
         def.position.set(pos.x, pos.y);
 
         body = world.createBody(def);
+        body.setUserData(this);
 
         PolygonShape shape = new PolygonShape();
         Vector2 vector2s[] = {new Vector2(-15, 0), new Vector2(0, 15), new Vector2(15, 0)};
@@ -43,7 +45,6 @@ public class TrianglePair implements ContactListener {
         fixDef.shape = shape;
 
         body.createFixture(fixDef);
-        world.setContactListener(this);
 
         shape.dispose();
 
@@ -61,27 +62,5 @@ public class TrianglePair implements ContactListener {
                 return COLLISION_SUCCESS;
 
         return COLLISION_FATAL;
-    }
-
-    @Override
-    public void beginContact(Contact contact) {
-        System.out.println("Contact");
-
-
-    }
-
-    @Override
-    public void endContact(Contact contact) {
-
-    }
-
-    @Override
-    public void preSolve(Contact contact, Manifold oldManifold) {
-
-    }
-
-    @Override
-    public void postSolve(Contact contact, ContactImpulse impulse) {
-
     }
 }

@@ -7,13 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Box2D;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.*;
 import com.rami.projectjoke.core.Orientation;
 import com.rami.projectjoke.core.PlayerTriangle;
 import com.rami.projectjoke.core.Position;
@@ -21,7 +15,7 @@ import com.rami.projectjoke.core.TrianglePair;
 
 import java.util.ArrayList;
 
-public class Game extends ApplicationAdapter {
+public class Game extends ApplicationAdapter implements ContactListener {
 	private PlayerTriangle currentPlayer;
 	private ArrayList<TrianglePair> trianglePairs;
 
@@ -34,9 +28,10 @@ public class Game extends ApplicationAdapter {
 	private SpriteBatch batch;
 
 	@Override
-	public void create () {
+	public void create (){
 		Box2D.init();
 		this.world = new World(new Vector2(0, -10), false);
+		this.world.setContactListener(this);
 
 		this.camera = new OrthographicCamera(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 		this.camera.translate(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
@@ -53,7 +48,7 @@ public class Game extends ApplicationAdapter {
 		TrianglePair pair1 = new TrianglePair(world, false, new Position(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2));
 		trianglePairs.add(pair1);
 
-//		this.currentPlayer = new PlayerTriangle(world, Orientation.UP);
+		this.currentPlayer = new PlayerTriangle(world, Orientation.UP);
 
 		// Setting the ground
 		BodyDef groundDef = new BodyDef();
@@ -61,10 +56,14 @@ public class Game extends ApplicationAdapter {
 		groundDef.position.set(Gdx.graphics.getWidth() / 2, (Gdx.graphics.getHeight() / 2) - 120);
 
 		Body ground = world.createBody(groundDef);
+		ground.setUserData(this);
 
 		PolygonShape shape = new PolygonShape();
 		shape.setAsBox(camera.viewportWidth, 1);
-		ground.createFixture(shape, 0);
+		FixtureDef fixtureDef = new FixtureDef();
+		fixtureDef.shape = shape;
+		fixtureDef.density = 0;
+		ground.createFixture(fixtureDef);
 		shape.dispose();
 	}
 
@@ -101,4 +100,46 @@ public class Game extends ApplicationAdapter {
 		batch.dispose();
 	}
 
+	@Override
+	public void beginContact(Contact contact) {
+		if (contact.getFixtureA().getBody().getUserData() instanceof TrianglePair){
+			if (contact.getFixtureB().getBody().getUserData() instanceof PlayerTriangle){
+				notifyContactedTriangle((TrianglePair) contact.getFixtureA().getBody().getUserData());
+			}
+		}
+
+		else if (contact.getFixtureB().getBody().getUserData() instanceof TrianglePair){
+			if (contact.getFixtureA().getBody().getUserData() instanceof PlayerTriangle){
+				notifyContactedTriangle((TrianglePair) contact.getFixtureB().getBody().getUserData());
+			}
+		}
+
+	}
+
+	private void notifyContactedTriangle(TrianglePair pair){
+		boolean resultOfEngagement = pair.engage(currentPlayer);
+		if (resultOfEngagement == TrianglePair.COLLISION_SUCCESS)
+			trianglePairs.remove(pair);
+		else
+			endGame();
+	}
+
+	private void endGame(){
+		System.out.println("END game");
+	}
+
+	@Override
+	public void endContact(Contact contact) {
+
+	}
+
+	@Override
+	public void preSolve(Contact contact, Manifold oldManifold) {
+
+	}
+
+	@Override
+	public void postSolve(Contact contact, ContactImpulse impulse) {
+
+	}
 }
