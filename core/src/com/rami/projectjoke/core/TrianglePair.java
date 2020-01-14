@@ -17,10 +17,10 @@ public class TrianglePair {
     public final static boolean COLLISION_FATAL = false;
     public final static boolean COLLISION_SUCCESS = true;
 
-    boolean emptyBottomSide;
+    private boolean emptyBottomSide;
     public Position pos;
 
-    private Body body;
+    public Body body;
 
     public TrianglePair(World world, boolean emptyBottomSide, Position pos){
         this.emptyBottomSide = emptyBottomSide;
@@ -62,5 +62,9 @@ public class TrianglePair {
                 return COLLISION_SUCCESS;
 
         return COLLISION_FATAL;
+    }
+
+    public void dispose(){
+        this.body.getWorld().destroyBody(this.body);
     }
 }

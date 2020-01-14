@@ -13,10 +13,10 @@ public class PlayerTriangle {
     public Position pos;
     Orientation orientation;
 
-    private Body body;
+    public Body body;
 
     public PlayerTriangle(World world, Orientation orientation) {
-        this.pos = new Position(Gdx.graphics.getWidth() / 2, (Gdx.graphics.getHeight() / 2) + 110);
+        this.pos = new Position(Gdx.graphics.getWidth() / 2, (Gdx.graphics.getHeight() / 2) - 110);
         this.orientation = orientation;
 
         initPhysBody(world);
